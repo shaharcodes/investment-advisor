@@ -1,0 +1,16 @@
+# Minimal Requirements for Simple Streamlit App
+# Use: pip install -r requirements_minimal.txt
+
+# Core Data Analysis
+pandas==2.1.4
+numpy==1.24.3
+
+# Financial Data
+yfinance==0.2.28
+
+# Visualization & Web App
+streamlit==1.29.0
+plotly==5.18.0
+
+# Date and Time
+pytz==2023.3

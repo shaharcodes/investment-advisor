@@ -1,0 +1,125 @@
+# Investment Advisor - Git Ignore File
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Data Files (add specific data directories)
+data/raw/
+data/processed/
+data/cache/
+*.csv
+*.xlsx
+*.json
+*.parquet
+
+# Model Files
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.pb
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Streamlit
+.streamlit/secrets.toml
+
+# API Keys and Sensitive Files
+api_keys.txt
+secrets.txt
+config.ini
+
+# Temporary Files
+temp/
+tmp/
+*.tmp
+*.temp
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+
+# Backup Files
+*.bak
+*.backup
+*.old
+
+# Test Files (temporary ones)
+test_*.py
+*_test.py
+debug_*.py
+temp_*.py
+
+# Documentation Build
+docs/_build/
+site/
