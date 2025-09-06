@@ -86,10 +86,11 @@ Estimated Shares: 8 shares
 
 - **Backend**: Python, Pandas, NumPy
 - **Financial Data**: yfinance, Alpha Vantage
-- **Technical Analysis**: pandas-ta, custom indicators  
-- **Machine Learning**: scikit-learn, XGBoost
+- **Technical Analysis**: ta library, custom indicators  
+- **Portfolio Management**: SQLite database, comprehensive tracking
+- **Machine Learning**: scikit-learn, XGBoost (planned)
 - **Visualization**: Plotly, Streamlit
-- **Data Storage**: SQLAlchemy, SQLite
+- **Data Storage**: SQLite, transaction logging
 
 ## 📁 Project Structure
 
@@ -107,17 +108,20 @@ investment-advisor/
 
 ## 🎯 Development Roadmap
 
-### Phase 1 (Current) ✅
-- [x] Basic technical analysis
-- [x] Simple recommendation engine
-- [x] Streamlit dashboard prototype
-- [x] Position sizing logic
+### Phase 1 (Completed) ✅
+- [x] **Technical Analysis**: RSI, MACD, Bollinger Bands, ATR, Moving Averages
+- [x] **Risk-Adjusted Recommendations**: Buy/sell/hold with confidence scoring
+- [x] **Multi-Market Support**: US (NASDAQ) + Israeli (TA125, TA35) markets
+- [x] **Position Sizing**: Risk tolerance-based allocation (conservative/moderate/aggressive)
+- [x] **Streamlit Dashboard**: Professional web interface with interactive charts
 
-### Phase 2 (Planned)
-- [ ] Advanced ML models
-- [ ] News sentiment integration
-- [ ] Portfolio tracking
-- [ ] Risk management features
+### Phase 2 (In Progress)
+- [x] **Manual Portfolio Tracking**: User-entered position management with real-time valuation
+- [x] **TA Analysis for Holdings**: Buy/sell/hold recommendations for owned stocks
+- [x] **Performance Analytics**: Track actual portfolio performance and market value changes
+- [ ] Advanced ML models with self-learning
+- [ ] News sentiment integration with external LLMs
+- [ ] 3-week TA validation testing period
 
 ### Phase 3 (Future)
 - [ ] Real-time alerts

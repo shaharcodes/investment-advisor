@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+"""
+BACKUP: Original Simple Prototype
+This is the working prototype from our previous session - kept as backup/reference
+To run: streamlit run backup_simple_app.py
+"""
+
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -189,4 +196,4 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("🌟 **Investment Advisor Pro** - Prototype v1.0")
+st.markdown("🌟 **Investment Advisor Pro** - Original Prototype (Backup)")

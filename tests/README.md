@@ -1,37 +1,58 @@
-# Investment Advisor Test Suite
+# 🧪 Investment Advisor Test Suite
 
 ## 🎯 Purpose
 
-This directory contains tests to ensure the investment advisor system components work correctly and reliably.
+This directory contains comprehensive tests to ensure the investment advisor system components work correctly and reliably.
 
 ## 🧪 Test Files
 
 | File | Purpose | Tests |
 |------|---------|-------|
-| `test_technical_analysis.py` | TA calculations | RSI, SMA, analyzer setup |
-| `test_data_fetching.py` | Market data | US/Israeli data, format validation |
-| `run_tests.py` | Test runner | Executes all tests with summary |
+| `run_tests.py` | **Main test runner** | Executes all tests with detailed summary |
+| `test_environment.py` | Environment verification | Python, packages, virtual env |
+| `test_data_fetching.py` | Market data retrieval | US/Israeli data, validation, quality |
+| `test_technical_analysis.py` | TA calculations | RSI, SMA, Bollinger Bands, indicators |
+| `test_recommendation_engine.py` | Investment recommendations | Risk tolerance, consistency, logic |
+| `demo.py` | **Live demonstration** | End-to-end system showcase |
+| **ARCHIVE FOLDER** | | |
+| `test_pandas_ta_compatibility.py` | pandas_ta compatibility test | Archive - compatibility issues confirmed |
+| `manual_pandas_ta_test.py` | Manual pandas_ta test | Archive - not installed as expected |
+| `archive_installation_test.py` | Installation attempt test | Archive - decided against due to risks |
 
 ## 🚀 How to Run Tests
 
-### Run All Tests
+### Run All Tests (Recommended)
 ```bash
 python tests/run_tests.py
 ```
 
+### Run Quick Test Suite
+```bash
+python tests/run_tests.py --quick
+```
+
 ### Run Individual Test Files
 ```bash
-# Test technical analysis only
+# Environment check
+python tests/test_environment.py
+
+# Market data tests
+python tests/test_data_fetching.py
+
+# Technical analysis tests
 python tests/test_technical_analysis.py
 
-# Test data fetching only  
-python tests/test_data_fetching.py
+# Recommendation engine tests
+python tests/test_recommendation_engine.py
+
+# Live demo
+python tests/demo.py
 ```
 
 ### Using pytest (if installed)
 ```bash
 # Run all tests with pytest
-pytest tests/
+pytest tests/ -v
 
 # Run specific test file
 pytest tests/test_technical_analysis.py -v
@@ -39,17 +60,28 @@ pytest tests/test_technical_analysis.py -v
 
 ## ✅ What Tests Verify
 
-### 📈 Technical Analysis Tests
-- ✅ RSI calculations return values 0-100
-- ✅ SMA calculations are reasonable
-- ✅ Analyzer initializes correctly
-- ✅ TA library integration works
+### 🔧 Environment Tests
+- ✅ Python version and virtual environment
+- ✅ Critical packages installed (pandas, yfinance, streamlit, etc.)
+- ✅ Optional packages detection
 
-### 📊 Data Fetching Tests  
-- ✅ US market data (AAPL) accessible
-- ✅ Israeli market data (TEVA) accessible
-- ✅ Data format consistency (DataFrame, datetime index)
-- ✅ Data quality (High >= Close >= Low)
+### 📊 Market Data Tests  
+- ✅ US market data (AAPL, NVDA) retrieval
+- ✅ Israeli market data (TEVA) with auto-conversion (.TA suffix)
+- ✅ Symbol validation and error handling
+- ✅ Data format consistency and quality checks
+
+### 📈 Technical Analysis Tests
+- ✅ RSI calculations (0-100 range validation)
+- ✅ Moving averages (SMA 20, SMA 50)
+- ✅ Bollinger Bands (upper/lower relationships)
+- ✅ All indicator calculations and data integrity
+
+### 🎯 Recommendation Engine Tests
+- ✅ Buy/Sell/Hold recommendation generation
+- ✅ Risk tolerance differentiation (conservative/moderate/aggressive)
+- ✅ Confidence scoring and consistency
+- ✅ Recommendation logic validation
 
 ## 🔧 Adding New Tests
 
