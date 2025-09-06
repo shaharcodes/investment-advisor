@@ -28,6 +28,7 @@ class RecommendationEngine:
         """
         self.risk_tolerance = risk_tolerance
         self.score_weights = self._get_score_weights()
+        self.thresholds = self._get_risk_thresholds()
         logger.info(f"Recommendation Engine initialized (Risk tolerance: {risk_tolerance})")
     
     def _get_score_weights(self) -> Dict[str, float]:
@@ -39,11 +40,11 @@ class RecommendationEngine:
         """
         weights = {
             'conservative': {
-                'rsi': 0.25,
-                'macd': 0.20,
-                'moving_averages': 0.30,
-                'bollinger_bands': 0.15,
-                'volume': 0.10
+                'rsi': 0.35,
+                'macd': 0.15,
+                'moving_averages': 0.35,
+                'bollinger_bands': 0.10,
+                'volume': 0.05
             },
             'moderate': {
                 'rsi': 0.20,
@@ -53,14 +54,28 @@ class RecommendationEngine:
                 'volume': 0.10
             },
             'aggressive': {
-                'rsi': 0.15,
-                'macd': 0.30,
-                'moving_averages': 0.20,
+                'rsi': 0.10,
+                'macd': 0.40,
+                'moving_averages': 0.15,
                 'bollinger_bands': 0.25,
                 'volume': 0.10
             }
         }
         return weights.get(self.risk_tolerance, weights['moderate'])
+    
+    def _get_risk_thresholds(self) -> Dict[str, float]:
+        """
+        Get BUY/SELL thresholds based on risk tolerance
+        
+        Returns:
+            Dictionary with buy_threshold and sell_threshold
+        """
+        thresholds = {
+            'conservative': {'buy': 0.25, 'sell': -0.25},  # Higher thresholds = less trading
+            'moderate': {'buy': 0.15, 'sell': -0.15},      # Moderate thresholds
+            'aggressive': {'buy': 0.10, 'sell': -0.10}     # Lower thresholds = more trading
+        }
+        return thresholds.get(self.risk_tolerance, thresholds['moderate'])
     
     def calculate_rsi_score(self, rsi_value: float) -> Tuple[float, str]:
         """
@@ -299,16 +314,19 @@ class RecommendationEngine:
             else:
                 final_score = 0.0
             
-            # Determine action and confidence with more realistic thresholds
-            if final_score > 0.15:
+            # Determine action and confidence using risk-adjusted thresholds
+            buy_threshold = self.thresholds['buy']
+            sell_threshold = self.thresholds['sell']
+            
+            if final_score > buy_threshold:
                 action = 'BUY'
-                confidence = min(95, int(20 + abs(final_score) * 150))
-            elif final_score < -0.15:
+                confidence = min(95, int(30 + abs(final_score) * 200))
+            elif final_score < sell_threshold:
                 action = 'SELL'
-                confidence = min(95, int(20 + abs(final_score) * 150))
+                confidence = min(95, int(30 + abs(final_score) * 200))
             else:
                 action = 'HOLD'
-                confidence = max(50, int(80 - abs(final_score) * 100))
+                confidence = max(50, int(85 - abs(final_score) * 150))
             
             # Calculate position size suggestion
             position_size = self._calculate_position_size(confidence, current_price, stock_info)
