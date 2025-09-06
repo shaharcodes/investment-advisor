@@ -299,16 +299,16 @@ class RecommendationEngine:
             else:
                 final_score = 0.0
             
-            # Determine action and confidence
-            if final_score > 0.4:
+            # Determine action and confidence with more realistic thresholds
+            if final_score > 0.15:
                 action = 'BUY'
-                confidence = min(90, int(abs(final_score) * 100))
-            elif final_score < -0.4:
+                confidence = min(95, int(20 + abs(final_score) * 150))
+            elif final_score < -0.15:
                 action = 'SELL'
-                confidence = min(90, int(abs(final_score) * 100))
+                confidence = min(95, int(20 + abs(final_score) * 150))
             else:
                 action = 'HOLD'
-                confidence = max(10, int((1 - abs(final_score)) * 100))
+                confidence = max(50, int(80 - abs(final_score) * 100))
             
             # Calculate position size suggestion
             position_size = self._calculate_position_size(confidence, current_price, stock_info)
