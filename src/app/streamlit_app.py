@@ -437,32 +437,51 @@ class InvestmentDashboard:
         # Header
         self.render_header(symbol)
         
-        # Analysis trigger
-        if analyze_button or st.session_state.data is None:
+        # Analysis trigger - only run when button clicked or no previous analysis
+        should_analyze = (analyze_button or 
+                         (not hasattr(st.session_state, 'symbol')) or 
+                         (hasattr(st.session_state, 'symbol') and st.session_state.symbol != symbol))
+        
+        if should_analyze:
             result = self.fetch_and_analyze(symbol, period, risk_tolerance)
             
             # Handle different result cases
             if result and len(result) == 4:
                 data, analysis, recommendation, stock_info = result
                 
-                # Store results in session state
-                st.session_state.data = data
-                st.session_state.analysis = analysis
-                st.session_state.recommendation = recommendation
-                st.session_state.stock_info = stock_info
-                st.session_state.symbol = symbol
-                st.session_state.last_error = None
+                # Check if we got valid data
+                if data is not None and not data.empty:
+                    # Store successful results
+                    st.session_state.data = data
+                    st.session_state.analysis = analysis
+                    st.session_state.recommendation = recommendation
+                    st.session_state.stock_info = stock_info
+                    st.session_state.symbol = symbol
+                    st.session_state.last_error = None
+                    st.session_state.analysis_status = 'success'
+                else:
+                    # Store error state with some stock info if available
+                    st.session_state.data = None
+                    st.session_state.analysis = None
+                    st.session_state.recommendation = None
+                    st.session_state.stock_info = stock_info
+                    st.session_state.symbol = symbol
+                    st.session_state.last_error = f"Failed to analyze {symbol}"
+                    st.session_state.analysis_status = 'error'
             else:
-                # Store error state
+                # Complete failure
                 st.session_state.data = None
                 st.session_state.analysis = None
                 st.session_state.recommendation = None
                 st.session_state.stock_info = None
                 st.session_state.symbol = symbol
                 st.session_state.last_error = f"Failed to analyze {symbol}"
+                st.session_state.analysis_status = 'error'
         
-        # Display results or error messages
-        if (hasattr(st.session_state, 'data') and 
+        # Display results based on analysis status
+        if (hasattr(st.session_state, 'analysis_status') and 
+            st.session_state.analysis_status == 'success' and
+            hasattr(st.session_state, 'data') and 
             st.session_state.data is not None and 
             not st.session_state.data.empty):
             
@@ -482,9 +501,16 @@ class InvestmentDashboard:
             with st.expander("📄 Raw Data"):
                 st.dataframe(st.session_state.analysis.tail(10))
                 
-        elif hasattr(st.session_state, 'last_error') and st.session_state.last_error:
+        elif (hasattr(st.session_state, 'analysis_status') and 
+              st.session_state.analysis_status == 'error'):
+            
             # Show error state with helpful information
             st.subheader("❌ Analysis Failed")
+            st.error(f"Could not analyze **{st.session_state.symbol}**")
+            
+            # Show additional error details if available
+            if hasattr(st.session_state, 'last_error'):
+                st.write(f"**Error:** {st.session_state.last_error}")
             
             st.markdown("""
             ### 🤔 What can you try?
