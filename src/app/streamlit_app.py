@@ -130,17 +130,56 @@ class InvestmentDashboard:
         return symbol.upper(), period, risk_tolerance, investment_amount, analyze_button
     
     def fetch_and_analyze(self, symbol: str, period: str, risk_tolerance: str):
-        """Fetch data and perform analysis"""
+        """Fetch data and perform analysis with enhanced error handling"""
         with st.spinner(f"Fetching data for {symbol}..."):
+            # Validate symbol first
+            is_valid, normalized_symbol, suggestions = self.data_fetcher.validate_symbol(symbol)
+            
+            if not is_valid:
+                st.error(f"❌ Invalid stock symbol: **{symbol}**")
+                if suggestions:
+                    st.info("💡 **Suggestions:**")
+                    for suggestion in suggestions[:5]:
+                        st.write(f"   • {suggestion}")
+                else:
+                    st.info("💡 **Tips:**")
+                    st.write("   • Check the spelling of the stock symbol")
+                    st.write("   • For Israeli stocks, try: TEVA, ICL, CHKP, NICE, BANK-HAPOALIM")
+                    st.write("   • For international stocks, add market suffix (e.g., .L for London)")
+                return None, None, None, None
+            
             # Fetch market data
             data = self.data_fetcher.get_stock_data(symbol, period=period)
             
             if data.empty:
-                st.error(f"No data found for symbol {symbol}")
-                return None, None, None
+                st.error(f"❌ No price data available for **{normalized_symbol}**")
+                st.warning("This could be due to:")
+                st.write("   • Stock may be delisted or suspended")
+                st.write("   • Limited trading activity")
+                st.write("   • Data provider temporary issues")
+                
+                # Get stock info even if no price data
+                stock_info = self.data_fetcher.get_stock_info(symbol)
+                if 'error' not in stock_info:
+                    st.info(f"ℹ️ **Company Info:** {stock_info.get('company_name', 'N/A')}")
+                    if stock_info.get('suggestions'):
+                        st.info("💡 **Alternative symbols to try:**")
+                        for suggestion in stock_info['suggestions'][:3]:
+                            st.write(f"   • {suggestion}")
+                
+                return None, None, None, stock_info
             
             # Get stock info
             stock_info = self.data_fetcher.get_stock_info(symbol)
+            
+            # Check stock info quality
+            if 'error' in stock_info:
+                st.warning(f"⚠️ Limited company information available for {normalized_symbol}")
+                st.write(f"   Error: {stock_info['error']}")
+            elif stock_info.get('data_quality'):
+                quality = stock_info['data_quality']
+                if quality in ['1/4', '2/4']:
+                    st.warning(f"⚠️ Limited company data quality: {quality}")
             
             # Perform technical analysis
             analysis = self.analyzer.calculate_all_indicators(data)
@@ -148,6 +187,8 @@ class InvestmentDashboard:
             # Generate recommendation
             self.recommendation_engine = RecommendationEngine(risk_tolerance=risk_tolerance)
             recommendation = self.recommendation_engine.generate_recommendation(analysis, stock_info)
+            
+            st.success(f"✅ Successfully analyzed **{normalized_symbol}** with {len(data)} data points")
             
             return data, analysis, recommendation, stock_info
     
@@ -399,37 +440,89 @@ class InvestmentDashboard:
         # Analysis trigger
         if analyze_button or st.session_state.data is None:
             result = self.fetch_and_analyze(symbol, period, risk_tolerance)
+            
+            # Handle different result cases
             if result and len(result) == 4:
                 data, analysis, recommendation, stock_info = result
+                
+                # Store results in session state
                 st.session_state.data = data
                 st.session_state.analysis = analysis
                 st.session_state.recommendation = recommendation
                 st.session_state.stock_info = stock_info
                 st.session_state.symbol = symbol
+                st.session_state.last_error = None
+            else:
+                # Store error state
+                st.session_state.data = None
+                st.session_state.analysis = None
+                st.session_state.recommendation = None
+                st.session_state.stock_info = None
+                st.session_state.symbol = symbol
+                st.session_state.last_error = f"Failed to analyze {symbol}"
         
-        # Display results
-        if st.session_state.data is not None and not st.session_state.data.empty:
-            # Stock overview
+        # Display results or error messages
+        if (hasattr(st.session_state, 'data') and 
+            st.session_state.data is not None and 
+            not st.session_state.data.empty):
+            
+            # Successfully analyzed - show full dashboard
             st.subheader("📊 Stock Overview")
             self.render_stock_overview(st.session_state.data, st.session_state.stock_info)
             
-            # Recommendation
             st.subheader("🎯 Investment Recommendation")
             self.render_recommendation(st.session_state.recommendation, investment_amount)
             
-            # Charts
             st.subheader("📈 Technical Analysis")
             self.render_price_chart(st.session_state.analysis)
             
-            # Metrics table
             st.subheader("📋 Key Indicators")
             self.render_metrics_table(st.session_state.analysis)
             
-            # Raw data (collapsible)
             with st.expander("📄 Raw Data"):
                 st.dataframe(st.session_state.analysis.tail(10))
+                
+        elif hasattr(st.session_state, 'last_error') and st.session_state.last_error:
+            # Show error state with helpful information
+            st.subheader("❌ Analysis Failed")
+            
+            st.markdown("""
+            ### 🤔 What can you try?
+            
+            **Popular US Stocks:**
+            - `AAPL` (Apple Inc.)
+            - `MSFT` (Microsoft Corporation)
+            - `GOOGL` (Alphabet Inc.)
+            - `TSLA` (Tesla Inc.)
+            - `NVDA` (NVIDIA Corporation)
+            
+            **Israeli Stocks (TA125/TA35):**
+            - `TEVA` (Teva Pharmaceutical)
+            - `ICL` (Israel Chemicals)
+            - `CHKP` (Check Point Software)
+            - `NICE` (NICE Ltd.)
+            - `BANK-HAPOALIM` (Bank Hapoalim)
+            
+            **International Examples:**
+            - `ASML.AS` (ASML Netherlands)
+            - `SAP.F` (SAP Germany)
+            - `NESN.SW` (Nestlé Switzerland)
+            """)
+            
         else:
-            st.info("👆 Click 'Analyze Stock' to get started!")
+            # Initial state - show welcome message
+            st.info("👆 **Click 'Analyze Stock' to get started!**")
+            st.markdown("""
+            ### 🚀 Welcome to Investment Advisor Pro
+            
+            Enter a stock symbol in the sidebar and click "Analyze Stock" to:
+            - Get real-time technical analysis
+            - Receive AI-powered investment recommendations
+            - View interactive price charts
+            - See key financial metrics
+            
+            **Try popular symbols:** AAPL, MSFT, TEVA, GOOGL, TSLA
+            """)
 
 def main():
     """Main function"""
